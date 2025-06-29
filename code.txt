@@ -1,0 +1,59 @@
+%% Butterworth and Chebyshev Filter Design and Analysis
+% ------------------------------------------------------
+% This script designs a low-pass Butterworth filter and compares it 
+% with a Chebyshev Type I filter. It then visualizes their frequency 
+% responses and analyzes the step response of the Butterworth filter.
+
+clc; clear; close all;
+
+%% Filter Specifications
+Fs = 1000;           % Sampling frequency in Hz
+Fc = 200;            % Cutoff frequency in Hz
+Fn = Fs / 2;         % Nyquist frequency
+Wn = Fc / Fn;        % Normalized cutoff frequency
+order = 4;           % Filter order (experiment with different values)
+Rp = 1;              % Passband ripple for Chebyshev filter (in dB)
+
+%% Design the Butterworth Low-Pass Filter
+[b_butt, a_butt] = butter(order, Wn, 'low');
+
+% Frequency response
+[H_butt, f] = freqz(b_butt, a_butt, 1024, Fs);
+
+%% Design the Chebyshev Type I Low-Pass Filter
+[b_cheby, a_cheby] = cheby1(order, Rp, Wn, 'low');
+
+% Frequency response
+[H_cheby, ~] = freqz(b_cheby, a_cheby, 1024, Fs);
+
+%% Plot 1: Magnitude Response Comparison
+figure;
+plot(f, abs(H_butt), 'b', 'LineWidth', 2); hold on;
+plot(f, abs(H_cheby), 'r--', 'LineWidth', 2);
+grid on;
+xlabel('Frequency (Hz)');
+ylabel('Magnitude');
+title('Magnitude Response: Butterworth vs Chebyshev');
+legend('Butterworth (No Ripple)', 'Chebyshev Type I (1 dB Ripple)');
+
+%% Plot 2: Phase Response of Butterworth Filter
+figure;
+plot(f, angle(H_butt), 'k', 'LineWidth', 2);
+grid on;
+xlabel('Frequency (Hz)');
+ylabel('Phase (radians)');
+title('Phase Response: Butterworth Filter');
+
+%% Plot 3: Step Response of Butterworth Filter
+figure;
+stepz(b_butt, a_butt);
+title('Step Response: Butterworth Filter');
+
+%% Display Coefficients for Debugging or Reference
+disp('--- Butterworth Filter Coefficients ---');
+disp('Numerator (b):'); disp(b_butt);
+disp('Denominator (a):'); disp(a_butt);
+
+disp('--- Chebyshev Filter Coefficients ---');
+disp('Numerator (b):'); disp(b_cheby);
+disp('Denominator (a):'); disp(a_cheby);
